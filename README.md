@@ -79,7 +79,7 @@
 
 
 
-所有Git配置文件都保存在本地：系统配置文件保存于Git安装目录下（./etc/gitconfig）；用户配置文件保存于用户文件夹下（C:\Users\username\\.gitconfig），不同Git版本路径可能不同。
+> 所有Git配置文件都保存在本地：系统配置文件保存于Git安装目录下（./etc/gitconfig）；用户配置文件保存于用户文件夹下（C:\Users\username\\.gitconfig），不同Git版本路径可能不同。
 
 在使用Git前，必须先配置用户名和用户邮箱，每次Git提交都会使用该信息。
 
@@ -92,7 +92,7 @@ git config --global user.email youremail@address.com #配置用户邮箱
 
 ## 4. Git工作原理
 
-Git在本地有三个工作区域：工作目录（Working Directory）、暂存区（Stage/Index）、资源库（Repository/Git Directory），如果加上远程Git仓库（Remote Directory），则包含四个区域。文件在四个工作区域的流转逻辑如下：
+> Git在本地有三个工作区域：工作目录（Working Directory）、暂存区（Stage/Index）、资源库（Repository/Git Directory），如果加上远程Git仓库（Remote Directory），则包含四个区域。文件在四个工作区域的流转逻辑如下：
 
 <div>
     <img src=imgs/gitconcept.png>
@@ -129,7 +129,7 @@ git status
 
 ## 7. 忽略文件
 
-有时我们并不想将所有文件纳入版本控制中，可以在根目录下新建".gitignore"文件，Git将根据此文件中书写的规则忽略特定文件。
+> 有时我们并不想将所有文件纳入版本控制中，可以在根目录下新建".gitignore"文件，Git将根据此文件中书写的规则忽略特定文件。
 
 - 井号（#）在此文件中表示注释
 - 可以使用Linux通配符，`*`表示任意多个字符、`?`表示一个字符，方括号`[abc]`代表可选字符范围，大括号`{string1,string2,...}`代表可选字符串等
@@ -164,6 +164,56 @@ fd1/*           忽略目录 fd1 下的全部内容；注意，不管是根目�
 /fd1/*          忽略根目录下的 /fd1/ 目录的全部内容
 ```
 
-## 8. SSH公钥及远程仓库
+## 8. 远程仓库配置SSH公钥
 
-在向远程仓库Push项目时，如果使用http的方式，则每次都需要输入账号和密码。而采取SSH公钥的方式，则可以实现远程服务器和本地主机的绑定，免去了每次都输入账号和密码的麻烦。
+> 在向远程仓库Push项目时，如果使用http的方式，则每次都需要输入账号和密码。而采取SSH公钥的方式，则可以实现远程服务器和本地主机的绑定，免去了每次都输入账号和密码的麻烦。
+
+1. 检查本地主机是否已经存在ssh key
+
+   ```Git
+   cd ~/.ssh
+   ls
+   # 如果.ssh文件夹不存在，或者.ssh文件夹没有ssh key文件，则须生成ssh key，否则跳转第3步
+   ```
+
+2. 生成ssh key
+
+   ```Git
+   ssh-keygen -t rsa -C "xxx@xxx.com"
+   # 邮箱填写远程服务器账号邮箱
+   # 执行后一直回车即可
+   ```
+
+3. 获取ssh key公钥内容
+
+   ```Git
+   cd ~/.ssh
+   cat id_rsa.pub
+   # 终端将打印出公钥内容，复制下来
+   # 带.pub后缀的为公钥，不带此后缀的为私钥（不能向外提供）
+   ```
+
+4. 在远程服务器中添加ssh key（如Github、Gitee等）
+
+5. 验证是否设置成功（以Github为例）
+
+   ```Git
+   ssh -T git@github.com
+   # 提示 "You've successfully authenticated" 表示配置成功
+   ```
+
+6. 设置成功后，即可不需要账号密码从远程仓库`clone`和`push`代码/文件，注意链接远程仓库时使用SSH协议地址而非HTTPS协议地址
+
+7. 直接从远程仓库克隆文件时，本地仓库自动连接远程仓库，使用`git remote -v`查看远程仓库信息。在本机新建仓库并连接远程仓库时，步骤如下：
+
+   ```Git
+   # 远程服务器上新建仓库
+   
+   # 使用Git命令添加远程仓库
+   git remote <remote> <ssh url> # <remote>为远程仓库别名，通常可设置为“origin” 
+   
+   # 本地仓库修改commit后，push到远程仓库
+   git push <remote> <branch> # 若未指定远程仓库分支，可能会报错“The current branch master has no upstream branch.”
+   ```
+
+   
